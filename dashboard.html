@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sistem Management</title>
+    <title>Voting System - Dashboard</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
@@ -16,25 +18,37 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #ffffff;
+            --accent-color: #f0e6ff;
+            --text-color: #333333;
+            --light-text: #666666;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 12px rgba(106, 17, 203, 0.1);
+        }
+
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background-color: var(--secondary-color);
             min-height: 100vh;
             padding: 20px;
+            color: var(--text-color);
         }
 
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
-            background-color: white;
+            background-color: var(--secondary-color);
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow);
             overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
         .header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
             padding: 25px 20px;
             text-align: center;
         }
@@ -54,7 +68,7 @@
         }
 
         .user-info {
-            background-color: #f8f9fa;
+            background-color: var(--accent-color);
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -68,17 +82,30 @@
         }
 
         .admin-panel, .user-panel {
-            background-color: #e8f4fd;
+            background-color: var(--secondary-color);
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid var(--border-color);
         }
 
-        .admin-panel h3, .user-panel h3 {
-            color: #2575fc;
+        .panel-header {
+            display: flex;
+            align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #2575fc;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .panel-header i {
+            margin-right: 10px;
+            color: var(--primary-color);
+            font-size: 1.2em;
+        }
+
+        .panel-header h3 {
+            color: var(--primary-color);
+            margin-bottom: 0;
         }
 
         .form-group {
@@ -89,20 +116,21 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
-            color: #333;
+            color: var(--text-color);
         }
 
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 15px;
             transition: all 0.3s;
+            background-color: var(--secondary-color);
         }
 
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: #6a11cb;
+            border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 2px rgba(106, 17, 203, 0.2);
         }
@@ -110,8 +138,8 @@
         .btn {
             display: inline-block;
             padding: 12px 20px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
             border: none;
             border-radius: 8px;
             font-size: 16px;
@@ -123,16 +151,21 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
         }
 
         .logout-btn {
-            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            background-color: #dc3545;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
         }
 
         .data-display {
-            background: white;
-            border: 1px solid #ddd;
+            background: var(--secondary-color);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 15px;
             margin-top: 15px;
@@ -148,47 +181,53 @@
         }
 
         .option-card {
-            background: white;
-            border: 1px solid #ddd;
+            background: var(--secondary-color);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
             transition: all 0.3s;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .option-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-color: #6a11cb;
+            box-shadow: var(--shadow);
+            border-color: var(--primary-color);
         }
 
         .option-card.selected {
-            background: #e8f4fd;
-            border-color: #2575fc;
+            background: var(--accent-color);
+            border-color: var(--primary-color);
         }
 
         .option-icon {
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: var(--primary-color);
         }
 
         .option-title {
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
         }
 
         .option-desc {
             font-size: 0.9em;
-            color: #666;
+            color: var(--light-text);
+            line-height: 1.4;
         }
 
         .option-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .option-item:last-child {
@@ -196,16 +235,21 @@
         }
 
         .delete-btn {
-            background: #ff4b2b;
-            color: white;
+            background: #dc3545;
+            color: var(--secondary-color);
             border: none;
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
         }
 
         .user-selection {
-            background: #f0f8ff;
+            background: var(--accent-color);
             padding: 15px;
             border-radius: 8px;
             margin-top: 15px;
@@ -219,84 +263,147 @@
         }
 
         .stat-card {
-            background: white;
-            padding: 15px;
+            background: var(--secondary-color);
+            padding: 20px;
             border-radius: 8px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
         }
 
         .stat-value {
-            font-size: 1.5em;
+            font-size: 1.8em;
             font-weight: bold;
-            color: #6a11cb;
+            color: var(--primary-color);
+            margin-bottom: 5px;
         }
 
         .loading {
             text-align: center;
             padding: 20px;
-            color: #666;
+            color: var(--light-text);
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 8px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .user-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .logout-btn {
+                margin-top: 10px;
+                align-self: flex-end;
+            }
+            
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Dashboard Sistem</h1>
+            <h1><i class="fas fa-vote-yea"></i> Sistem Voting Online</h1>
             <p id="dashboardSubtitle">Memuat data...</p>
         </div>
         <div class="dashboard">
             <div class="user-info">
                 <div class="user-details">
-                    <p><strong>Email:</strong> <span id="userEmail">Memuat...</span></p>
-                    <p><strong>Role:</strong> <span id="userRole">Memuat...</span></p>
+                    <p><strong><i class="fas fa-envelope"></i> Email:</strong> <span id="userEmail">Memuat...</span></p>
+                    <p><strong><i class="fas fa-user-tag"></i> Role:</strong> <span id="userRole">Memuat...</span></p>
                 </div>
-                <a href="login.html" class="btn logout-btn" id="logoutBtn">Logout</a>
+                <a href="login.html" class="btn logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
             
             <!-- Admin Panel -->
             <div class="admin-panel" id="adminPanel" style="display: none;">
-                <h3>🛠️ Panel Administrator</h3>
+                <div class="panel-header">
+                    <i class="fas fa-tools"></i>
+                    <h3>Panel Administrator</h3>
+                </div>
                 <p>Kelola pilihan yang tersedia untuk user</p>
                 
-                <div class="form-group">
-                    <label for="optionTitle">Judul Pilihan</label>
-                    <input type="text" id="optionTitle" placeholder="Masukkan judul pilihan">
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Tambah Pilihan Baru</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="optionTitle"><i class="fas fa-heading"></i> Judul Pilihan</label>
+                        <input type="text" id="optionTitle" placeholder="Masukkan judul pilihan">
+                    </div>
+                    <div class="form-group">
+                        <label for="optionDescription"><i class="fas fa-align-left"></i> Deskripsi Pilihan</label>
+                        <textarea id="optionDescription" placeholder="Masukkan deskripsi pilihan" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="optionIcon"><i class="fas fa-icons"></i> Ikon Pilihan (Font Awesome)</label>
+                        <input type="text" id="optionIcon" placeholder="Contoh: fas fa-gamepad, fas fa-book" value="fas fa-clipboard-list">
+                    </div>
+                    <button id="addOptionBtn" class="btn"><i class="fas fa-plus"></i> Tambah Pilihan</button>
                 </div>
-                <div class="form-group">
-                    <label for="optionDescription">Deskripsi Pilihan</label>
-                    <textarea id="optionDescription" placeholder="Masukkan deskripsi pilihan" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="optionIcon">Ikon Pilihan (emoji)</label>
-                    <input type="text" id="optionIcon" placeholder="Contoh: 🎮, 📚, 🏀" value="📋">
-                </div>
-                <button id="addOptionBtn" class="btn">Tambah Pilihan</button>
                 
-                <div class="option-list">
-                    <h4>Daftar Pilihan Tersedia</h4>
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-list"></i>
+                        <span>Daftar Pilihan Tersedia</span>
+                    </div>
                     <div id="adminOptionsList" class="data-display">
                         <div class="loading">Memuat pilihan...</div>
                     </div>
                 </div>
 
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalOptions">0</div>
-                        <div>Total Pilihan</div>
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Statistik Sistem</span>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalUsers">0</div>
-                        <div>Total User</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalSelections">0</div>
-                        <div>Total Pemilihan</div>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalOptions">0</div>
+                            <div><i class="fas fa-list-ol"></i> Total Pilihan</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalUsers">0</div>
+                            <div><i class="fas fa-users"></i> Total User</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalSelections">0</div>
+                            <div><i class="fas fa-vote-yea"></i> Total Pemilihan</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="user-selection">
-                    <h4>Data Pemilihan User</h4>
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-user-check"></i>
+                        <span>Data Pemilihan User</span>
+                    </div>
                     <div id="userSelectionsData" class="data-display">
                         <div class="loading">Memuat data pemilihan...</div>
                     </div>
@@ -305,11 +412,14 @@
             
             <!-- User Panel -->
             <div class="user-panel" id="userPanel" style="display: none;">
-                <h3>👤 Panel Pemilihan</h3>
+                <div class="panel-header">
+                    <i class="fas fa-user"></i>
+                    <h3>Panel Pemilihan</h3>
+                </div>
                 <p>Pilih salah satu opsi yang tersedia di bawah ini</p>
                 
                 <div id="userSelectionStatus" class="user-selection">
-                    <p><strong>Status Pemilihan Anda:</strong> <span id="currentSelection">Memuat...</span></p>
+                    <p><strong><i class="fas fa-info-circle"></i> Status Pemilihan Anda:</strong> <span id="currentSelection">Memuat...</span></p>
                 </div>
                 
                 <div id="optionsContainer">
@@ -318,8 +428,11 @@
                     </div>
                 </div>
 
-                <div class="user-selection">
-                    <h4>Statistik Pemilihan</h4>
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Statistik Pemilihan</span>
+                    </div>
                     <div id="selectionStats" class="data-display">
                         <div class="loading">Memuat statistik...</div>
                     </div>
@@ -429,7 +542,7 @@
         addOptionBtn.addEventListener('click', () => {
             const title = optionTitleInput.value.trim();
             const description = optionDescriptionInput.value.trim();
-            const icon = optionIconInput.value.trim() || '📋';
+            const icon = optionIconInput.value.trim() || 'fas fa-clipboard-list';
 
             if (!title) {
                 alert('Judul pilihan harus diisi!');
@@ -448,7 +561,7 @@
                 .then(() => {
                     optionTitleInput.value = '';
                     optionDescriptionInput.value = '';
-                    optionIconInput.value = '📋';
+                    optionIconInput.value = 'fas fa-clipboard-list';
                     loadAdminOptions();
                 })
                 .catch((error) => {
@@ -479,10 +592,10 @@
                             html += `
                                 <div class="option-item">
                                     <div>
-                                        <strong>${option.icon} ${option.title}</strong><br>
+                                        <strong><i class="${option.icon}"></i> ${option.title}</strong><br>
                                         <small>${option.description}</small>
                                     </div>
-                                    <button class="delete-btn" onclick="deleteOption('${doc.id}')">Hapus</button>
+                                    <button class="delete-btn" onclick="deleteOption('${doc.id}')"><i class="fas fa-trash"></i> Hapus</button>
                                 </div>
                             `;
                         });
@@ -525,9 +638,9 @@
                             html += `
                                 <div class="option-item">
                                     <div>
-                                        <strong>${selection.userEmail}</strong><br>
-                                        <small>Memilih: ${selection.optionTitle}</small><br>
-                                        <small>Waktu: ${new Date(selection.selectedAt?.toDate()).toLocaleString()}</small>
+                                        <strong><i class="fas fa-user"></i> ${selection.userEmail}</strong><br>
+                                        <small><i class="fas fa-check-circle"></i> Memilih: ${selection.optionTitle}</small><br>
+                                        <small><i class="fas fa-clock"></i> Waktu: ${new Date(selection.selectedAt?.toDate()).toLocaleString()}</small>
                                     </div>
                                 </div>
                             `;
@@ -577,8 +690,8 @@
                         querySnapshot.forEach((doc) => {
                             const option = doc.data();
                             html += `
-                                <div class="option-card" onclick="selectOption('${doc.id}', '${option.title}')">
-                                    <div class="option-icon">${option.icon}</div>
+                                <div class="option-card" onclick="selectOption('${doc.id}', '${option.title}', '${option.icon}')">
+                                    <div class="option-icon"><i class="${option.icon}"></i></div>
                                     <div class="option-title">${option.title}</div>
                                     <div class="option-desc">${option.description}</div>
                                 </div>
@@ -594,7 +707,7 @@
         }
 
         // Pilih opsi
-        window.selectOption = function(optionId, optionTitle) {
+        window.selectOption = function(optionId, optionTitle, optionIcon) {
             const user = auth.currentUser;
             
             // Cek apakah user sudah memilih sebelumnya
@@ -605,6 +718,7 @@
                         return db.collection('selections').doc(user.uid).update({
                             optionId: optionId,
                             optionTitle: optionTitle,
+                            optionIcon: optionIcon,
                             selectedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     } else {
@@ -614,6 +728,7 @@
                             userEmail: user.email,
                             optionId: optionId,
                             optionTitle: optionTitle,
+                            optionIcon: optionIcon,
                             selectedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     }
@@ -682,12 +797,17 @@
                         }
                     });
                     
-                    let html = '<h4>Hasil Pemilihan:</h4>';
+                    let html = '<div class="section-title"><i class="fas fa-poll"></i> Hasil Pemilihan:</div>';
                     if (Object.keys(optionCounts).length === 0) {
                         html += '<p>Belum ada yang memilih</p>';
                     } else {
                         for (const [optionTitle, count] of Object.entries(optionCounts)) {
-                            html += `<p><strong>${optionTitle}:</strong> ${count} pemilih</p>`;
+                            html += `
+                                <div class="option-item">
+                                    <div>${optionTitle}</div>
+                                    <div><strong>${count}</strong> pemilih</div>
+                                </div>
+                            `;
                         }
                     }
                     
