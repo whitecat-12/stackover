@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System - Firebase</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .form-container {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #6a11cb;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(106, 17, 203, 0.2);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .switch-form a {
+            color: #6a11cb;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .switch-form a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .dashboard {
+            padding: 25px;
+        }
+
+        .dashboard h2 {
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .user-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .admin-panel, .user-panel {
+            background-color: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .admin-panel h3, .user-panel h3 {
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .panel-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            background: #6a11cb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .panel-btn:hover {
+            background: #2575fc;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            margin-top: 15px;
+        }
+
+        .data-display {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginForm">
+            <div class="header">
+                <h1>Selamat Datang</h1>
+                <p>Silakan login untuk melanjutkan</p>
+            </div>
+            <div class="form-container">
+                <div id="message" class="message"></div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Masukkan email Anda">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Masukkan password Anda">
+                </div>
+                <button id="loginBtn" class="btn">Login</button>
+                <div class="switch-form">
+                    <p>Belum punya akun? <a id="showRegister">Daftar di sini</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" style="display: none;">
+            <div class="header">
+                <h1>Buat Akun Baru</h1>
+                <p>Daftar untuk mengakses sistem</p>
+            </div>
+            <div class="form-container">
+                <div id="regMessage" class="message"></div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" placeholder="Masukkan email Anda">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" placeholder="Buat password (min. 6 karakter)">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Konfirmasi Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Ulangi password Anda">
+                </div>
+                <div class="form-group">
+                    <label for="userType">Jenis Akun</label>
+                    <select id="userType">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button id="registerBtn" class="btn">Daftar</button>
+                <div class="switch-form">
+                    <p>Sudah punya akun? <a id="showLogin">Login di sini</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" style="display: none;">
+            <div class="header">
+                <h1>Dashboard</h1>
+                <p id="dashboardSubtitle">Selamat datang di sistem kami</p>
+            </div>
+            <div class="dashboard">
+                <div class="user-info">
+                    <h3>Informasi Pengguna</h3>
+                    <p><strong>Email:</strong> <span id="userEmail"></span></p>
+                    <p><strong>Role:</strong> <span id="userRole"></span></p>
+                    <p><strong>User ID:</strong> <span id="userId"></span></p>
+                </div>
+                
+                <div class="admin-panel" id="adminPanel" style="display: none;">
+                    <h3>🛠️ Panel Administrator</h3>
+                    <p>Anda memiliki akses penuh ke sistem</p>
+                    <div class="panel-actions">
+                        <button class="panel-btn" onclick="getAllUsers()">Lihat Semua User</button>
+                        <button class="panel-btn" onclick="createAdminData()">Buat Data Admin</button>
+                        <button class="panel-btn" onclick="getAdminData()">Lihat Data Admin</button>
+                    </div>
+                    <div id="adminData" class="data-display"></div>
+                </div>
+                
+                <div class="user-panel" id="userPanel" style="display: none;">
+                    <h3>👤 Panel User</h3>
+                    <p>Anda dapat mengelola data Anda sendiri</p>
+                    <div class="panel-actions">
+                        <button class="panel-btn" onclick="createUserPost()">Buat Post</button>
+                        <button class="panel-btn" onclick="getMyPosts()">Lihat Post Saya</button>
+                        <button class="panel-btn" onclick="getPublicData()">Lihat Data Publik</button>
+                    </div>
+                    <div id="userData" class="data-display"></div>
+                </div>
+                
+                <button id="logoutBtn" class="btn logout-btn">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Konfigurasi Firebase (GANTI DENGAN KONFIGURASI ANDA)
+        const firebaseConfig = {
+          apiKey: "AIzaSyBeBPEwC5FdAuRQZw_ah2kmybWEpYWuVe8",
+          authDomain: "sementara-f8edc.firebaseapp.com",
+          projectId: "sementara-f8edc",
+          storageBucket: "sementara-f8edc.firebasestorage.app",
+          messagingSenderId: "768538120599",
+          appId: "1:768538120599:web:52b7b2556983fd744db4d2",
+          measurementId: "G-MGH99K1R9E"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Elemen DOM
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const dashboard = document.getElementById('dashboard');
+        const messageDiv = document.getElementById('message');
+        const regMessageDiv = document.getElementById('regMessage');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const regEmailInput = document.getElementById('regEmail');
+        const regPasswordInput = document.getElementById('regPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const userTypeSelect = document.getElementById('userType');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const showRegisterLink = document.getElementById('showRegister');
+        const showLoginLink = document.getElementById('showLogin');
+        const userEmailSpan = document.getElementById('userEmail');
+        const userRoleSpan = document.getElementById('userRole');
+        const userIdSpan = document.getElementById('userId');
+        const adminPanel = document.getElementById('adminPanel');
+        const userPanel = document.getElementById('userPanel');
+        const dashboardSubtitle = document.getElementById('dashboardSubtitle');
+        const adminDataDiv = document.getElementById('adminData');
+        const userDataDiv = document.getElementById('userData');
+
+        // Tampilkan form register
+        showRegisterLink.addEventListener('click', () => {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            clearMessages();
+        });
+
+        // Tampilkan form login
+        showLoginLink.addEventListener('click', () => {
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'block';
+            clearMessages();
+        });
+
+        // Fungsi untuk membersihkan pesan
+        function clearMessages() {
+            messageDiv.style.display = 'none';
+            regMessageDiv.style.display = 'none';
+        }
+
+        // Fungsi untuk menampilkan pesan
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+        }
+
+        // Registrasi pengguna baru
+        registerBtn.addEventListener('click', () => {
+            const email = regEmailInput.value;
+            const password = regPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const userType = userTypeSelect.value;
+
+            if (password !== confirmPassword) {
+                showMessage(regMessageDiv, 'Password tidak cocok!', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage(regMessageDiv, 'Password harus minimal 6 karakter!', 'error');
+                return;
+            }
+
+            // Membuat user di Firebase Auth
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // User berhasil dibuat
+                    const user = userCredential.user;
+                    
+                    // Simpan data user tambahan di Firestore
+                    return db.collection('users').doc(user.uid).set({
+                        email: email,
+                        userType: userType,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    showMessage(regMessageDiv, 'Akun berhasil dibuat!', 'success');
+                    // Reset form
+                    regEmailInput.value = '';
+                    regPasswordInput.value = '';
+                    confirmPasswordInput.value = '';
+                })
+                .catch((error) => {
+                    console.error('Error registrasi:', error);
+                    showMessage(regMessageDiv, `Error: ${error.message}`, 'error');
+                });
+        });
+
+        // Login pengguna
+        loginBtn.addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Login berhasil
+                    const user = userCredential.user;
+                    
+                    // Ambil data user dari Firestore
+                    return db.collection('users').doc(user.uid).get();
+                })
+                .then((doc) => {
+                    if (doc.exists) {
+                        loginForm.style.display = 'none';
+                        dashboard.style.display = 'block';
+                        updateDashboard(auth.currentUser, doc.data());
+                    } else {
+                        showMessage(messageDiv, 'Data pengguna tidak ditemukan!', 'error');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error login:', error);
+                    showMessage(messageDiv, `Error: ${error.message}`, 'error');
+                });
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut()
+                .then(() => {
+                    dashboard.style.display = 'none';
+                    loginForm.style.display = 'block';
+                    emailInput.value = '';
+                    passwordInput.value = '';
+                    adminDataDiv.innerHTML = '';
+                    userDataDiv.innerHTML = '';
+                    clearMessages();
+                })
+                .catch((error) => {
+                    console.error('Error logout:', error);
+                });
+        });
+
+        // Update dashboard berdasarkan user
+        function updateDashboard(user, userData = null) {
+            if (user) {
+                userEmailSpan.textContent = user.email;
+                userIdSpan.textContent = user.uid;
+                
+                // Jika userData tidak diberikan, ambil dari Firestore
+                if (!userData) {
+                    db.collection('users').doc(user.uid).get()
+                        .then((doc) => {
+                            if (doc.exists) {
+                                userData = doc.data();
+                                updateUserInfo(userData);
+                            }
+                        });
+                } else {
+                    updateUserInfo(userData);
+                }
+            }
+        }
+
+        function updateUserInfo(userData) {
+            userRoleSpan.textContent = userData.userType;
+            
+            if (userData.userType === 'admin') {
+                adminPanel.style.display = 'block';
+                userPanel.style.display = 'none';
+                dashboardSubtitle.textContent = 'Anda login sebagai Administrator';
+            } else {
+                adminPanel.style.display = 'none';
+                userPanel.style.display = 'block';
+                dashboardSubtitle.textContent = 'Anda login sebagai User';
+            }
+        }
+
+        // ==================== FUNGSI DEMO RULES ====================
+
+        // Fungsi admin: Mendapatkan semua users (hanya admin yang bisa)
+        function getAllUsers() {
+            adminDataDiv.innerHTML = 'Memuat data users...';
+            
+            db.collection('users').get()
+                .then((querySnapshot) => {
+                    let html = '<h4>Daftar Semua User:</h4>';
+                    querySnapshot.forEach((doc) => {
+                        const user = doc.data();
+                        html += `<p><strong>${user.email}</strong> - ${user.userType} (${doc.id})</p>`;
+                    });
+                    adminDataDiv.innerHTML = html;
+                })
+                .catch((error) => {
+                    adminDataDiv.innerHTML = `Error: ${error.message}`;
+                    console.error('Error getting users:', error);
+                });
+        }
+
+        // Fungsi admin: Membuat data admin (hanya admin yang bisa)
+        function createAdminData() {
+            const data = {
+                message: 'Data rahasia admin',
+                createdBy: auth.currentUser.email,
+                createdAt: new Date().toISOString()
+            };
+            
+            db.collection('adminData').add(data)
+                .then((docRef) => {
+                    adminDataDiv.innerHTML = `Data admin berhasil dibuat dengan ID: ${docRef.id}`;
+                })
+                .catch((error) => {
+                    adminDataDiv.innerHTML = `Error: ${error.message}`;
+                    console.error('Error creating admin data:', error);
+                });
+        }
+
+        // Fungsi admin: Membaca data admin (hanya admin yang bisa)
+        function getAdminData() {
+            adminDataDiv.innerHTML = 'Memuat data admin...';
+            
+            db.collection('adminData').get()
+                .then((querySnapshot) => {
+                    let html = '<h4>Data Admin:</h4>';
+                    if (querySnapshot.empty) {
+                        html += '<p>Tidak ada data admin</p>';
+                    } else {
+                        querySnapshot.forEach((doc) => {
+                            const data = doc.data();
+                            html += `<p><strong>${data.message}</strong> - dibuat oleh ${data.createdBy}</p>`;
+                        });
+                    }
+                    adminDataDiv.innerHTML = html;
+                })
+                .catch((error) => {
+                    adminDataDiv.innerHTML = `Error: ${error.message}`;
+                    console.error('Error getting admin data:', error);
+                });
+        }
+
+        // Fungsi user: Membuat post (user hanya bisa membuat untuk diri sendiri)
+        function createUserPost() {
+            const postData = {
+                title: `Post oleh ${auth.currentUser.email}`,
+                content: 'Ini adalah contoh post yang dibuat user',
+                authorId: auth.currentUser.uid,
+                authorEmail: auth.currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            db.collection('posts').add(postData)
+                .then((docRef) => {
+                    userDataDiv.innerHTML = `Post berhasil dibuat dengan ID: ${docRef.id}`;
+                })
+                .catch((error) => {
+                    userDataDiv.innerHTML = `Error: ${error.message}`;
+                    console.error('Error creating post:', error);
+                });
+        }
+
+        // Fungsi user: Mendapatkan post milik sendiri
+        function getMyPosts() {
+            userDataDiv.innerHTML = 'Memuat post Anda...';
+            
+            db.collection('posts')
+                .where('authorId', '==', auth.currentUser.uid)
+                .get()
+                .then((querySnapshot) => {
+                    let html = '<h4>Post Anda:</h4>';
+                    if (querySnapshot.empty) {
+                        html += '<p>Anda belum membuat post</p>';
+                    } else {
+                        querySnapshot.forEach((doc) => {
+                            const post = doc.data();
+                            html += `<p><strong>${post.title}</strong><br>${post.content}</p><hr>`;
+                        });
+                    }
+                    userDataDiv.innerHTML = html;
+                })
+                .catch((error) => {
+                    userDataDiv.innerHTML = `Error: ${error.message}`;
+                    console.error('Error getting posts:', error);
+                });
+        }
+
+        // Fungsi user: Membaca data publik (semua user yang login bisa)
+        function getPublicData() {
+            userDataDiv.innerHTML = 'Memuat data publik...';
+            
+            db.collection('publicData').get()
+                .then((querySnapshot) => {
+                    let html = '<h4>Data Publik:</h4>';
+                    if (querySnapshot.empty) {
+                        html += '<p>Tidak ada data publik</p>';
+                    } else {
+                        querySnapshot.forEach((doc) => {
+                            const data = doc.data();
+                            html += `<p><strong>${data.title || 'No Title'}</strong><br>${data.content || 'No Content'}</p>`;
+                        });
+                    }
+                    userDataDiv.innerHTML = html;
+                })
+                .catch((error) => {
+                    userDataDiv.innerHTML = `Error: ${error.message}`;
+                    console.error('Error getting public data:', error);
+                });
+        }
+
+        // Cek status login saat halaman dimuat
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User sudah login
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'none';
+                dashboard.style.display = 'block';
+                updateDashboard(user);
+            } else {
+                // User belum login
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                dashboard.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
